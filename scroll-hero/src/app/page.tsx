@@ -2,6 +2,9 @@ import SmoothScrollProvider from "@/components/providers/SmoothScrollProvider";
 import VideoScrollHero from "@/components/sections/VideoScrollHero";
 import VideoScrollHero2 from "@/components/sections/VideoScrollHero2";
 import VideoScrollHero3 from "@/components/sections/VideoScrollHero3";
+import VideoScrollHero4 from "@/components/sections/VideoScrollHero4";
+import VideoScrollHero5 from "@/components/sections/VideoScrollHero5";
+import VideoScrollHero6 from "@/components/sections/VideoScrollHero6";
 
 export default function Home() {
   return (
@@ -10,6 +13,9 @@ export default function Home() {
         <VideoScrollHero />
         <VideoScrollHero2 />
         <VideoScrollHero3 />
+        <VideoScrollHero4 />
+        <VideoScrollHero5 />
+        <VideoScrollHero6 />
       </main>
     </SmoothScrollProvider>
   );
