@@ -9,6 +9,7 @@ export default function VideoScrollHero6() {
   const imagesRef = useRef<HTMLImageElement[]>([]);
   const currentFrameRef = useRef(0);
   const FRAME_COUNT = 178;
+  const [shouldLoad, setShouldLoad] = useState(false);
 
   const drawCover = useCallback((ctx: CanvasRenderingContext2D, img: HTMLImageElement, w: number, h: number) => {
     const imgRatio = img.width / img.height;
@@ -34,8 +35,33 @@ export default function VideoScrollHero6() {
   const [videoReady, setVideoReady] = useState(false);
   const [loadProgress, setLoadProgress] = useState(0);
 
+  // IntersectionObserver to handle lazy preloading & memory release
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setShouldLoad(true);
+        } else {
+          setShouldLoad(false);
+          imagesRef.current = [];
+          setVideoReady(false);
+          setLoadProgress(0);
+        }
+      },
+      { rootMargin: "800px 0px 800px 0px" } // Preload 800px before entering viewport
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
   // Load frames
   useEffect(() => {
+    if (!shouldLoad) return;
+
     let loadedCount = 0;
     const images: HTMLImageElement[] = [];
 
@@ -91,7 +117,7 @@ export default function VideoScrollHero6() {
         img.onerror = null;
       });
     };
-  }, [drawCover]);
+  }, [shouldLoad, drawCover]);
 
   // Scroll handler
   useEffect(() => {
@@ -148,79 +174,81 @@ export default function VideoScrollHero6() {
 
   return (
     <>
-      {/* Loading screen */}
-      {!videoReady && (
+      {/* Scroll progress bar at top */}
+      {shouldLoad && (
         <div
-          className="fixed inset-0 z-50 flex flex-col items-center justify-center"
-          style={{ background: "var(--background)" }}
+          className="fixed top-0 left-0 z-40 h-[2px]"
+          style={{ background: "rgba(255,255,255,0.05)", width: "100%" }}
         >
-          {/* Animated orbs */}
           <div
-            className="absolute w-64 h-64 rounded-full blur-3xl opacity-20"
-            style={{
-              background: "radial-gradient(circle, #a78bfa, transparent)",
-              top: "30%",
-              left: "30%",
-            }}
+            ref={progressRef}
+            className="h-full progress-bar transition-none"
+            style={{ width: "0%", transitionProperty: "none" }}
           />
-          <div
-            className="absolute w-48 h-48 rounded-full blur-3xl opacity-15"
-            style={{
-              background: "radial-gradient(circle, #38bdf8, transparent)",
-              bottom: "30%",
-              right: "30%",
-            }}
-          />
-
-          <div className="relative z-10 flex flex-col items-center gap-8">
-            {/* Logo / title */}
-            <div className="flex flex-col items-center gap-2">
-              <span
-                className="text-[10px] tracking-[0.4em] uppercase font-mono"
-                style={{ color: "var(--muted)" }}
-              >
-                Loading Sequence
-              </span>
-              <h1
-                className="text-3xl font-semibold tracking-tighter iridescent-text"
-              >
-                Shizuka Yoshimoto
-              </h1>
-            </div>
-
-            {/* Progress bar */}
-            <div className="w-48 h-px" style={{ background: "rgba(255,255,255,0.08)" }}>
-              <div
-                className="h-full progress-bar transition-all duration-300"
-                style={{ width: `${loadProgress * 100}%` }}
-              />
-            </div>
-
-            <span
-              className="text-xs font-mono tabular-nums"
-              style={{ color: "var(--muted)" }}
-            >
-              {Math.round(loadProgress * 100)}%
-            </span>
-          </div>
         </div>
       )}
-
-      {/* Scroll progress bar at top */}
-      <div
-        className="fixed top-0 left-0 z-40 h-[2px]"
-        style={{ background: "rgba(255,255,255,0.05)", width: "100%" }}
-      >
-        <div
-          ref={progressRef}
-          className="h-full progress-bar transition-none"
-          style={{ width: "0%", transitionProperty: "none" }}
-        />
-      </div>
 
       {/* Main scroll section */}
       <section ref={sectionRef} className="scroll-section relative">
         <div className="sticky top-0 h-screen overflow-hidden">
+          {/* Loading screen contained inside the section */}
+          {!videoReady && shouldLoad && (
+            <div
+              className="absolute inset-0 z-20 flex flex-col items-center justify-center"
+              style={{ background: "var(--background)" }}
+            >
+              {/* Animated orbs */}
+              <div
+                className="absolute w-64 h-64 rounded-full blur-3xl opacity-20"
+                style={{
+                  background: "radial-gradient(circle, #a78bfa, transparent)",
+                  top: "30%",
+                  left: "30%",
+                }}
+              />
+              <div
+                className="absolute w-48 h-48 rounded-full blur-3xl opacity-15"
+                style={{
+                  background: "radial-gradient(circle, #38bdf8, transparent)",
+                  bottom: "30%",
+                  right: "30%",
+                }}
+              />
+
+              <div className="relative z-10 flex flex-col items-center gap-8">
+                {/* Logo / title */}
+                <div className="flex flex-col items-center gap-2">
+                  <span
+                    className="text-[10px] tracking-[0.4em] uppercase font-mono"
+                    style={{ color: "var(--muted)" }}
+                  >
+                    Loading Sequence
+                  </span>
+                  <h1
+                    className="text-3xl font-semibold tracking-tighter iridescent-text"
+                  >
+                    Shizuka Yoshimoto
+                  </h1>
+                </div>
+
+                {/* Progress bar */}
+                <div className="w-48 h-px" style={{ background: "rgba(255,255,255,0.08)" }}>
+                  <div
+                    className="h-full progress-bar transition-all duration-300"
+                    style={{ width: `${loadProgress * 100}%` }}
+                  />
+                </div>
+
+                <span
+                  className="text-xs font-mono tabular-nums"
+                  style={{ color: "var(--muted)" }}
+                >
+                  {Math.round(loadProgress * 100)}%
+                </span>
+              </div>
+            </div>
+          )}
+
           {/* Canvas sequence */}
           <canvas
             ref={canvasRef}
