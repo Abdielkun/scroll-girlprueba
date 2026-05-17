@@ -311,7 +311,7 @@ export default function VideoScrollHero2() {
               <h1
                 className="text-5xl md:text-7xl lg:text-8xl font-semibold tracking-tighter leading-[1.02] iridescent-text"
               >
-                Evolve.
+                Mahiru Shiina
               </h1>
 
               <p
