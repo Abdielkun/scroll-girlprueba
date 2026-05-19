@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
 
 interface SectionItem {
   id: string;
@@ -12,15 +13,24 @@ interface SectionItem {
 const SECTIONS: SectionItem[] = [
   { id: "akari", name: "Akari Watanabe", shortName: "AKARI", color: "var(--accent, #a78bfa)" },
   { id: "mahiru", name: "Mahiru Shiina", shortName: "MAHIRU", color: "var(--accent-blue, #38bdf8)" },
+  { id: "ghostfreak", name: "Ghostfreak", shortName: "GHOST", color: "#cbd5e1" },
   { id: "karane", name: "Karane Inda", shortName: "KARANE", color: "#f43f5e" },
   { id: "shizuka1", name: "Shizuka Yoshimoto I", shortName: "SHIZUKA I", color: "#fb7185" },
   { id: "shizuka2", name: "Shizuka Yoshimoto II", shortName: "SHIZUKA II", color: "#6366f1" },
 ];
 
 export default function HudMenu() {
-  const [activeSection, setActiveSection] = useState<string>("akari");
+  const pathname = usePathname();
+  const router = useRouter();
+  const currentPathId = pathname.replace(/^\//, "");
+  const [activeSection, setActiveSection] = useState<string>(currentPathId || "akari");
 
   useEffect(() => {
+    if (pathname !== "/") {
+      setActiveSection(pathname.replace(/^\//, ""));
+      return;
+    }
+
     const observerOptions = {
       root: null,
       rootMargin: "-45% 0px -45% 0px", // Trigger when the section occupies the center of the screen
@@ -45,13 +55,18 @@ export default function HudMenu() {
     return () => {
       observer.disconnect();
     };
-  }, []);
+  }, [pathname]);
 
   const handleScrollTo = (id: string) => {
-    const el = document.getElementById(id);
-    if (el) {
-      el.scrollIntoView({ behavior: "smooth" });
+    if (pathname === "/") {
+      const el = document.getElementById(id);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth" });
+        return;
+      }
     }
+    // Navigate to character page
+    router.push(`/${id}`);
   };
 
   return (

@@ -5,11 +5,13 @@ import VideoScrollHero4 from "@/components/sections/VideoScrollHero4";
 import VideoScrollHero5 from "@/components/sections/VideoScrollHero5";
 import VideoScrollHero6 from "@/components/sections/VideoScrollHero6";
 import HudMenu from "@/components/ui/HudMenu";
+import Navbar from "@/components/ui/Navbar";
 
 export default function Home() {
   return (
     <SmoothScrollProvider>
       <main>
+        <Navbar />
         <HudMenu />
         
         <div id="akari">
@@ -35,3 +37,4 @@ export default function Home() {
     </SmoothScrollProvider>
   );
 }
+
